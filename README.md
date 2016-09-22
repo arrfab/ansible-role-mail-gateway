@@ -4,9 +4,9 @@
 The goal of that Ansible role is to configure a dedicated node as a mail relay/gateway that would perform antivirus/antispam checks, and would log everything in a DB. Then it would forward all the mails to the real mail server.
 The tools used/configured/deployed by this role are : 
 * postfix
-* mailscanner
-* mailwatch
-* clamav/clamd
+* [mailscanner](http://mailscanner.info)
+* [mailwatch](http://mailwatch.org/)
+* [clamav/clamd](http://www.clamav.net/)
 * spamassassin
 * selinux custom policies
 
