@@ -1,0 +1,8 @@
+LogSyslog yes
+LocalSocket /var/run/clamd.postfix/mailscanner.sock
+LocalSocketGroup postfix
+LocalSocketMode 660
+FixStaleSocket yes
+User postfix
+AllowSupplementaryGroups yes
+

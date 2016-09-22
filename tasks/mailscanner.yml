@@ -1,0 +1,79 @@
+---
+
+# Mailscanner part
+- name: Fetching Mailscanner archive
+  get_url: 
+    url: https://s3.amazonaws.com/msv5/release/MailScanner-{{ mailscanner_version }}.rhel.tar.gz
+    dest: /opt/downloads/MailScanner-{{ mailscanner_version }}.rhel.tar.gz
+    
+- name: Extract Mailscanner archive
+  unarchive:
+    copy: no
+    src: /opt/downloads/MailScanner-{{ mailscanner_version }}.rhel.tar.gz 
+    dest: /opt/downloads/
+- name: Ensuring Epel is there
+  yum: pkg=epel-release state=installed
+- name: Installing now Mailscanner
+  yum:
+    pkg: /opt/downloads/MailScanner-{{ mailscanner_version }}/MailScanner-{{ mailscanner_version }}.noarch.rpm
+    state: installed
+- name: Installing required pkgs for MailScanner
+  yum: pkg={{ item }} state=installed
+  with_items:
+    - spamassassin
+    - clamav
+    - clamav-server-systemd
+    - clamav-scanner-systemd
+    - clamav-update
+    - re2c
+    - perl-DBD-SQLite
+    - tnef
+    - unzip
+    - perl-App-cpanminus
+    - pyzor
+    - perl-Razor-Agent
+    - GeoIP
+    - perl-Net-Patricia
+    - perl-Mail-DKIM
+- name: Configure freshclam
+  template: src=freshclam.j2 dest=/etc/sysconfig/freshclam
+  register: freshclam_config
+- name: Running freshclam once (init)
+  shell: /usr/bin/freshclam
+  when: freshclam_config.changed
+
+- name: Configuring tmpfiles for Clamd
+  template: src=tmpfiles-mailscanner-clamav.conf.j2 dest=/etc/tmpfiles.d/mailscanner-clamav.conf
+  register: tmpfiles_clamav
+
+- name: Ensuring tmpfiles are created when initialized
+  command: "/usr/bin/systemd-tmpfiles --create /etc/tmpfiles.d/mailscanner-clamav.conf"
+  when: tmpfiles_clamav.changed
+
+- name: Adding a clamd service for postfix and mailscanner
+  template: src=clamd-mailscanner.conf.j2 dest=/etc/clamd.d/mailscanner.conf
+
+- name: Enabling the clamd@mailscanner service
+  service: name=clamd@mailscanner state=started enabled=yes
+
+- name: Configure MailScanner defaults
+  template: src=MailScanner-defaults.j2 dest=/etc/MailScanner/defaults
+  notify: restart_mailscanner
+
+- name: Configure MailScanner local config
+  template: src=MailScanner-local.conf.j2 dest=/etc/MailScanner/conf.d/01_local.conf
+  notify: restart_mailscanner
+
+- name: Setting up permissions for postfix and MailScanner directories
+  file: path={{ item }} owner=postfix group=apache state=directory
+  with_items:
+    - /var/spool/MailScanner/quarantine/
+    - /var/spool/MailScanner/incoming
+    - /var/spool/MailScanner/spamassassin
+- name: Ensuring razor dir has correct settings
+  file: path=/root/.razor state=directory setype=spamc_home_t owner=root group=root
+- name: Ensuring some services are running
+  service: name={{ item }} state=started enabled=yes
+  with_items:
+    - spamassassin
+    - mailscanner 

@@ -1,0 +1,54 @@
+%org-name% = {{ mailscanner_org_name }}
+%org-long-name% = {{ mailscanner_org_long_name }}
+%web-site% = {{ mailscanner_org_web_site }}
+Run As User = postfix
+Run As Group = postfix
+Incoming Queue Dir = /var/spool/postfix/hold
+Outgoing Queue Dir = /var/spool/postfix/incoming
+MTA = postfix
+Incoming Work User = postfix
+Incoming Work Group = postfix
+SpamAssassin User State Dir = /var/spool/MailScanner/spamassassin
+Sign Clean Messages = no
+Custom Functions Dir = /usr/share/MailScanner/MailScanner/CustomFunctions
+Spam Actions = store header "X-Spam-Status: Yes"
+High Scoring Spam Actions = store head "X-Spam-Status: Yes"
+Non Spam Actions = store deliver header "X-Spam-Status: No"
+Spam List = SPAMHAUS SORBS SPAMCOP
+Required SpamAssassin Score = 5
+High SpamAssassin Score = 10
+Virus Scanners = clamd
+Clamd Socket = /var/run/clamd.postfix/mailscanner.sock
+
+
+{% if deploy_mailwatch %}
+Always Looked Up Last = &MailWatchLogging
+Detailed Spam Report = yes
+Quarantine Whole Message = yes
+Quarantine Whole Messages As Queue Files = no
+Include Scores In SpamAssassin Report = yes
+Quarantine User = postfix
+Quarantine Group = apache
+Quarantine Permissions = 0660
+Is Definitely Not Spam = &SQLWhitelist
+Is Definitely Spam = &SQLBlacklist
+{% endif %}
+
+# Redefining some variables
+Spam-Virus Header = X-%org-name%-MailScanner-SpamVirus-Report:
+Mail Header = X-%org-name%-MailScanner:
+Spam Header = X-%org-name%-MailScanner-SpamCheck:
+Spam Score Header = X-%org-name%-MailScanner-SpamScore:
+Information Header = X-%org-name%-MailScanner-Information:
+Envelope From Header = X-%org-name%-MailScanner-From:
+Envelope To Header = X-%org-name%-MailScanner-To:
+ID Header = X-%org-name%-MailScanner-ID:
+IP Protocol Version Header = # X-%org-name%-MailScanner-IP-Protocol:
+# Hostname = The %org-name% ($HOSTNAME) MailScanner
+Hostname = The %org-name% ($HOSTNAME) MailScanner
+# word "Signature" and the %org-name% you specified at the top of this file,
+Attachment Warning Filename = %org-name%-Attachment-Warning.txt
+Watermark Secret = %org-name%-Secret
+Watermark Header = X-%org-name%-MailScanner-Watermark:
+MCP Header = X-%org-name%-MailScanner-MCPCheck:
+

@@ -1,0 +1,16 @@
+---
+# postfix part
+- name: Configure postfix main.cf
+  template: src=postfix-main.cf.j2 dest=/etc/postfix/main.cf
+  notify: restart_mailscanner
+
+- name: Configure postfix transport
+  template: src=postfix-transport.j2 dest=/etc/postfix/transport
+  notify: postmap_transport
+- name: Configure postfix header checks
+  template: src=postfix-header_checks.j2 dest=/etc/postfix/header_checks
+  notify: restart_mailscanner
+- name: Ensuring postfix isn't enabled (started by mailscanner)
+  service: name=postfix state=started enabled=no
+- include: ../../iptables/tasks/custom-policy.yml iptables_policy_name=smtp iptables_port=25
+

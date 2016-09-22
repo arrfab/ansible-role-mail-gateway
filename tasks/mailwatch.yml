@@ -1,0 +1,84 @@
+---
+# mailwatch
+- name: Ensuring we have a common path for download/tools 
+  file: path={{ item }} state=directory
+  with_items:
+    - /opt/downloads
+    - /opt/tools
+
+- name: Installing required pkgs for Mailwatch webui
+  yum: pkg={{ item }} state=installed
+  with_items:
+    - php
+    - php-mysql
+    - php-gd
+    - php-mbstring
+    - php-pecl-geoip
+    - unzip
+    - perl-App-cpanminus
+
+- name: Installing Perl Encoding::FixLatin for mailwatch custom functions
+  command: /usr/local/bin/cpanm Encoding::FixLatin
+
+- name: Fetching MailWatch webui archive
+  get_url:
+    url: https://github.com/mailwatch/1.2.0/archive/v{{ mailwatch_version }}.zip
+    dest: /opt/downloads/mailwatch-{{ mailwatch_version }}.zip
+- name: Uncompress mailwatch archive
+  unarchive:
+    copy: no
+    src: /opt/downloads/mailwatch-{{ mailwatch_version }}.zip
+    dest: /opt/downloads/
+
+- name: Creating mailscanner Mysql DB
+  mysql_db: name=mailscanner state=present
+  register: mailscanner_db
+
+- name: Load initial DB if just created
+  mysql_db: name=mailscanner state=import target=/opt/downloads/1.2.0-{{ mailwatch_version }}/create.sql
+  when: mailscanner_db.changed
+
+- name: Configuring template for mailwatch init
+  template: src=mailwatch-init.sql.j2 dest=/opt/downloads/mailwatch-init.sql
+  when: mailscanner_db.changed
+
+- name: Adding mailwatch admin user
+  mysql_db: name=mailscanner state=import target=/opt/downloads/mailwatch-init.sql
+  when: mailscanner_db.changed
+
+- name: Adding/Granting mailscanner db user
+  mysql_user: name={{ mailwatch_mysql_user }} password={{ mailwatch_mysql_password }} priv=mailscanner.*:ALL state=present
+
+- name: Deploying Mailwatch
+  command: creates=/var/www/html/mailscanner cp -r /opt/downloads/1.2.0-{{ mailwatch_version }}/mailscanner /var/www/html/
+
+- name: Deploying Mailwatch tools
+  command: creates=/opt/tools/{{ item }} cp -r /opt/downloads/1.2.0-{{ mailwatch_version }}/tools/Cron_jobs/{{ item }} /opt/tools/
+  with_items:
+    - db_clean.php
+    - quarantine_maint.php
+    - quarantine_report.php
+- name: Adding jobs to crontab
+  cron: name="MailWatch - {{ item }}" minute="0" hour="2" job="/opt/tools/{{ item }}"
+  with_items:
+    - db_clean.php
+    - quarantine_maint.php --clean
+    - quarantine_report.php
+
+- name: Fixing some permissions/directories
+  file: path=/var/www/html/mailscanner/images owner=root group=apache mode=0775 setype=httpd_sys_content_rw_t recurse=yes state=directory
+
+- name: Configuring MailWatch 
+  template: src=mailwatch-conf.php.j2 dest=/var/www/html/mailscanner/conf.php
+
+- name: Ensuring CustomFunctions directory exists for MailScanner
+  file: path=/usr/share/MailScanner/MailScanner/CustomFunctions  state=directory
+
+- name: Linking MailScanner to Mailwatch/SQL
+  template: src={{ item }}.j2 dest=//usr/share/MailScanner/MailScanner/CustomFunctions/{{ item }}
+  with_items:
+    - MailWatch.pm
+    - SQLBlackWhiteList.pm
+    - SQLSpamSettings.pm
+  notify: restart_mailscanner 
+

@@ -1,0 +1,3 @@
+GRANT FILE ON *.* TO {{ mailwatch_mysql_user }}@localhost IDENTIFIED BY '{{ mailwatch_mysql_password }}';
+insert into whitelist (to_address,from_address) values ("default","127.0.0.1");
+insert into users set username='{{ mailwatch_admin_user }}',password=MD5('{{ mailwatch_admin_password }}'),fullname='Mailwatch Admin',type='A';

@@ -1,0 +1,24 @@
+---
+- name: Installing required pkgs
+  yum: name={{ item }} state=installed
+  with_items:
+      - policycoreutils
+
+- name: Ensuring we have a drop folder for local policies
+  file: 
+    path: /etc/selinux/local_policies 
+    state: directory
+    owner: root
+    group: root
+
+- name: Distributing custom policies for mailwatch/mailscanner
+  copy: src=selinux/{{ item }} dest=/etc/selinux/local_policies/{{ item }}
+  with_items:
+    - http-mailwatch.pp
+    - mailscanner-custom.pp
+  register: custom_policies_output
+
+- name: (re)loading selinux policies if needed
+  shell: /usr/sbin/semodule -u /etc/selinux/local_policies/{{ item.item }}
+  with_items: custom_policies_output.results
+  when: item.changed

@@ -1,0 +1,14 @@
+---
+- include: selinux.yml
+  tags:
+    - selinux
+- include: postfix.yml
+  tags: 
+    - postfix
+- include: mailwatch.yml
+  tags:
+    - mailwatch
+- include: mailscanner.yml
+  tags:
+    - mailscanner
+

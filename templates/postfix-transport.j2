@@ -1,0 +1,3 @@
+{% for domain in relay_domains %}
+{{ domain.item }}	smtp:[{{ domain.smtp_host}}]
+{% endfor %}

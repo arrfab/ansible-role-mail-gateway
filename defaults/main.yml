@@ -1,0 +1,22 @@
+# Postfix conf
+relay_domains:
+  - item: domain1.com
+    smtp_host: 192.168.1.1
+  - item: domain2.com
+    smtp_host: 192.168.1.2
+postfix_mynetworks: "127.0.0.0/8"
+# MailScanner conf
+mailscanner_version: 5.0.3-7
+mailscanner_org_name: MScan
+mailscanner_org_long_name: MailScanner service
+mailscanner_org_web_site: "http://www.mailscanner.info"
+
+
+# MailWatch conf
+deploy_mailwatch: True
+mailwatch_version: 1.2.0-rc.2
+mailwatch_admin_user: admin
+mailwatch_admin_password: "wo0wv5oBwlh$Mw" 
+mailwatch_mysql_user: mailwatch
+mailwatch_mysql_password: "ewx#dsQlxa56zL"
+mailwatch_timezone: "Etc/UTC"

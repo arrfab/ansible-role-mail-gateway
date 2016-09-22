@@ -1,0 +1,50 @@
+
+module mailscanner-custom 1.0.4;
+
+require {
+	type mscan_t;
+	type antivirus_t;
+	type antivirus_var_run_t;
+	type postfix_public_t;
+	type postfix_spool_t;
+	type mscan_tmp_t;
+	type mscan_spool_t;
+        type mysqld_t;
+        type mysqld_var_run_t;
+	type etc_mail_t;
+        type unreserved_port_t;
+	type razor_port_t;
+	type spamc_exec_t;
+	class sock_file { write getattr };
+	class unix_stream_socket connectto;
+	class capability { fowner fsetid };
+	class dir { search setattr read create write getattr rmdir remove_name open add_name };
+	class file { rename setattr read lock create ioctl write getattr unlink open execute_no_trans execute };
+	class fifo_file { write ioctl open getattr };
+        class tcp_socket { name_bind name_connect accept listen };
+	class sock_file write;
+}
+
+#============= antivirus_t ==============
+
+allow antivirus_t mscan_tmp_t:dir { read getattr open };
+allow antivirus_t mscan_tmp_t:dir { write rmdir setattr remove_name create add_name };
+allow antivirus_t mscan_tmp_t:file { write create unlink open };
+
+#============= mscan_t ==============
+allow mscan_t etc_mail_t:dir { search read getattr open };
+allow mscan_t etc_mail_t:file { read getattr open ioctl };
+allow mscan_t postfix_public_t:fifo_file { write ioctl open getattr };
+allow mscan_t postfix_spool_t:dir { write getattr read remove_name open add_name };
+allow mscan_t postfix_spool_t:file { rename setattr read lock create getattr write ioctl unlink open };
+allow mscan_t self:capability { fowner fsetid };
+allow mscan_t mysqld_t:unix_stream_socket connectto;
+allow mscan_t mysqld_var_run_t:sock_file write;
+allow mscan_t self:tcp_socket { accept listen };
+allow mscan_t unreserved_port_t:tcp_socket { name_bind name_connect };
+allow mscan_t mysqld_t:unix_stream_socket connectto;
+allow mscan_t razor_port_t:tcp_socket name_connect;
+allow mscan_t spamc_exec_t:file { execute getattr read open ioctl execute_no_trans };
+allow mscan_t antivirus_t:unix_stream_socket connectto;
+allow mscan_t antivirus_var_run_t:sock_file { write getattr };
+
