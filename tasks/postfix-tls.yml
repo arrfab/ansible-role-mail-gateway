@@ -1,0 +1,11 @@
+---
+- name: Deploying certs for postfix/TLS
+  copy: src=/{{ pkistore_path }}/{{ item }} dest=/etc/pki/tls/certs/{{ item }}
+  with_items:
+    - "{{ postfix_tls_ca_cert }}"
+    - "{{ postfix_tls_cert }}"
+  notify: restart_mailscanner
+
+- name: Deploying key for postfix/TLS
+  copy: src=/{{ pkistore_path }}/{{ postfix_tls_key}} dest=/etc/pki/tls/private/{{ postfix_tls_key }}
+  notify: restart_mailscanner

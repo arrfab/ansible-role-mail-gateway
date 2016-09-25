@@ -5,6 +5,7 @@ data_directory = /var/lib/postfix
 mail_owner = postfix
 inet_interfaces = all
 inet_protocols = all
+myhostname= {{ postfix_myhostname }}
 mydestination = $myhostname, localhost.$mydomain, localhost
 mynetworks = {{ postfix_mynetworks }}
 unknown_local_recipient_reject_code = 550
@@ -37,3 +38,12 @@ smtp_tls_security_level = may
 smtp_tls_loglevel = 1
 smtp_tls_session_cache_database = btree:/var/lib/postfix/smtp_scache 
 
+{% if postfix_tls_enable %}
+# TLS - server part
+smtpd_tls_CAfile=/etc/pki/tls/certs/{{ postfix_tls_ca_cert }}
+smtpd_tls_cert_file = /etc/pki/tls/certs/{{ postfix_tls_cert }}
+smtpd_tls_key_file = /etc/pki/tls/private/{{ postfix_tls_key }}
+smtpd_tls_security_level = may
+smtpd_tls_loglevel = 1
+smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
+{% endif %}

@@ -5,6 +5,10 @@
 - include: postfix.yml
   tags: 
     - postfix
+- include: postfix-tls.yml
+  when: postfix_tls_enable
+  tags:
+    - postfix
 - include: mailwatch.yml
   tags:
     - mailwatch
