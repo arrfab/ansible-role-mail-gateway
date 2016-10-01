@@ -29,6 +29,10 @@ manpage_directory = /usr/share/man
 transport_maps = hash:/etc/postfix/transport
 relay_domains = {% for domain in relay_domains %}{{ domain.item }}{% if not loop.last %},{% endif %}{% endfor %}
 
+{% if postfix_filter_recipients %}
+relay_recipient_maps = hash:/etc/postfix/relay_recipients
+{% endif %}
+
 # mailscanner part
 header_checks = regexp:/etc/postfix/header_checks
 

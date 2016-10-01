@@ -6,6 +6,7 @@ relay_domains:
     smtp_host: 192.168.1.2
 postfix_myhostname: "{{ inventory_hostname }}"
 postfix_mynetworks: "127.0.0.0/8"
+
 # Enabling STARTTLS for postfix
 # If set to True, be sure to point to a cert/key/ca
 # And so file the tls variables to point to those files
@@ -15,6 +16,14 @@ postfix_tls_ca_cert: ca.crt
 postfix_tls_cert: cert.crt
 postfix_tls_key: hostname.key
 
+# Enabling filtering for incoming mails
+# Needs also a list of all email addresses allowed to pass through us
+postfix_filter_recipients: False
+postfix_filter_recipients_list:
+  - postmaster@domain1.com
+  - user1@domain1.com
+  - postmaster@domain2.com
+  - user2@domain2.com
 
 # MailScanner conf
 mailscanner_version: 5.0.3-7
