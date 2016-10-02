@@ -17,8 +17,8 @@
     - unzip
     - perl-App-cpanminus
 
-- name: Installing Perl Encoding::FixLatin for mailwatch custom functions
-  command: /usr/local/bin/cpanm Encoding::FixLatin
+- name: Installing Perl Encoding FixLatin for mailwatch custom functions
+  shell: /bin/cpanm Encoding::FixLatin
 
 - name: Fetching MailWatch webui archive
   get_url:

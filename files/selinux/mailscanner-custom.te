@@ -1,5 +1,5 @@
 
-module mailscanner-custom 1.0.4;
+module mailscanner-custom 1.0.6;
 
 require {
 	type mscan_t;
@@ -22,7 +22,7 @@ require {
 	class file { rename setattr read lock create ioctl write getattr unlink open execute_no_trans execute };
 	class fifo_file { write ioctl open getattr };
         class tcp_socket { name_bind name_connect accept listen };
-	class sock_file write;
+	class sock_file { write open };
 }
 
 #============= antivirus_t ==============
@@ -34,8 +34,9 @@ allow antivirus_t mscan_tmp_t:file { write create unlink open };
 #============= mscan_t ==============
 allow mscan_t etc_mail_t:dir { search read getattr open };
 allow mscan_t etc_mail_t:file { read getattr open ioctl };
+allow mscan_t postfix_public_t:sock_file { write open };
 allow mscan_t postfix_public_t:fifo_file { write ioctl open getattr };
-allow mscan_t postfix_spool_t:dir { write getattr read remove_name open add_name };
+allow mscan_t postfix_spool_t:dir { search write getattr read remove_name open add_name };
 allow mscan_t postfix_spool_t:file { rename setattr read lock create getattr write ioctl unlink open };
 allow mscan_t self:capability { fowner fsetid };
 allow mscan_t mysqld_t:unix_stream_socket connectto;

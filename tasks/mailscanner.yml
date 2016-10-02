@@ -35,6 +35,11 @@
     - GeoIP
     - perl-Net-Patricia
     - perl-Mail-DKIM
+
+- name: Removing example from freschlam
+  lineinfile: dest=/etc/freshclam.conf state=absent regexp='^Example'
+  tags:
+    - now
 - name: Configure freshclam
   template: src=freshclam.j2 dest=/etc/sysconfig/freshclam
   register: freshclam_config

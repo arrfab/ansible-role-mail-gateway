@@ -1,8 +1,8 @@
 - name: restart_postfix
   service: name=postfix state=restarted
 - name: postmap_transport
-  shell: /usr/sbin/postmap /etc/postfix/transport
+  shell: /sbin/postmap /etc/postfix/transport
 - name: postmap_relay_recipients
-  shell: /usr/sbin/postmap /etc/postfix/relay_recipients
+  shell: /sbin/postmap /etc/postfix/relay_recipients
 - name: restart_mailscanner
   service: name=mailscanner state=restarted
