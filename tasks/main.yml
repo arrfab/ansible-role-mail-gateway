@@ -10,6 +10,7 @@
   tags:
     - postfix
 - include: mailwatch.yml
+  when: deploy_mailwatch
   tags:
     - mailwatch
 - include: mailscanner.yml

@@ -84,6 +84,20 @@
     - /var/spool/MailScanner/quarantine/
     - /var/spool/MailScanner/incoming
     - /var/spool/MailScanner/spamassassin
+
+- name: Ensuring CustomFunctions directory exists for MailScanner
+  file: path=/usr/share/MailScanner/MailScanner/CustomFunctions  state=directory
+
+- name: Linking MailScanner to Mailwatch/SQL
+  template: src={{ item }}.j2 dest=//usr/share/MailScanner/MailScanner/CustomFunctions/{{ item }}
+  with_items:
+    - MailWatch.pm
+    - SQLBlackWhiteList.pm
+    - SQLSpamSettings.pm
+  notify: restart_mailscanner 
+  when: deploy_mailwatch
+
+
 - name: Ensuring razor dir has correct settings
   file: path=/root/.razor state=directory setype=spamc_home_t owner=root group=root
 - name: Ensuring some services are running

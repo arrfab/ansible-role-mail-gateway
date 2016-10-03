@@ -19,8 +19,8 @@ Required SpamAssassin Score = 5
 High SpamAssassin Score = 10
 Virus Scanners = clamd
 Clamd Socket = /var/run/clamd.postfix/mailscanner.sock
-Filename Rules = %etc-dir%/filename.rules
-Filetype Rules = %etc-dir%/filetype.rules
+Filename Rules = /etc/MailScanner/filename.rules
+Filetype Rules = /etc/MailScanner/filetype.rules
 
 {% if deploy_mailwatch %}
 Always Looked Up Last = &MailWatchLogging

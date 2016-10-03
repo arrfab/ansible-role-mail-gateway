@@ -6,6 +6,9 @@
     - /opt/downloads
     - /opt/tools
 
+- name: Ensuring Epel is there
+  yum: pkg=epel-release state=installed
+
 - name: Installing required pkgs for Mailwatch webui
   yum: pkg={{ item }} state=installed
   with_items:
