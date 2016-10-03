@@ -6,3 +6,5 @@
   shell: /sbin/postmap /etc/postfix/relay_recipients
 - name: restart_mailscanner
   service: name=mailscanner state=restarted
+- name: restart_httpd
+  service: name=httpd state=restarted

@@ -1,5 +1,5 @@
 
-module httpd-mailwatch 1.0.1;
+module httpd-mailwatch 1.0.3;
 
 require {
 	type mscan_t;
@@ -22,10 +22,10 @@ require {
 	class tcp_socket { name_bind name_connect accept listen };
 	class file { getattr read open ioctl };
 	class netlink_audit_socket nlmsg_relay;
-	class sock_file write;
+	class sock_file { getattr write };
 	class file { ioctl write execute setattr read rename create open getattr execute_no_trans getattr };
         class fifo_file { write getattr open };
-	class dir { write remove_name add_name read };
+	class dir { search write remove_name add_name read };
 }
 
 #============= httpd_t ==============
@@ -34,6 +34,8 @@ allow httpd_t etc_mail_t:file { read getattr open ioctl };
 allow httpd_t mscan_etc_t:dir read;
 allow httpd_t mscan_etc_t:file { read getattr open };
 allow httpd_t mscan_exec_t:file getattr;
+allow httpd_t mscan_spool_t:dir read;
+allow httpd_t postfix_public_t:sock_file write;
 allow httpd_t self:capability audit_write;
 allow httpd_t self:netlink_audit_socket nlmsg_relay;
 allow httpd_t spamd_var_lib_t:dir read;
@@ -41,6 +43,7 @@ allow httpd_t spamd_var_lib_t:file { read getattr open ioctl };
 allow httpd_t mscan_spool_t:file { read getattr open ioctl };
 allow httpd_t postfix_etc_t:file { read getattr open };
 allow httpd_t postfix_public_t:fifo_file { write getattr open };
+allow httpd_t postfix_public_t:sock_file getattr;
 allow httpd_t postfix_spool_t:dir { write remove_name add_name };
 allow httpd_t postfix_spool_t:file { rename create setattr };
 allow httpd_t postfix_spool_t:file { read write getattr open };

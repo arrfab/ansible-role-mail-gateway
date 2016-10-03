@@ -69,6 +69,15 @@
   template: src=MailScanner-local.conf.j2 dest=/etc/MailScanner/conf.d/01_local.conf
   notify: restart_mailscanner
 
+- name: Allowing all filetypes/names from localhost (to be able to release)
+  template: src=MailScanner-{{ item }} dest=/etc/MailScanner/{{ item }}
+  with_items:
+    - filename.rules
+    - filetype.rules
+    - filename.rules.allowall.conf  
+    - filetype.rules.allowall.conf
+  notify: restart_mailscanner
+
 - name: Setting up permissions for postfix and MailScanner directories
   file: path={{ item }} owner=postfix group=apache state=directory
   with_items:

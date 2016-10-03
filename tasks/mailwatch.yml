@@ -16,6 +16,7 @@
     - php-pecl-geoip
     - unzip
     - perl-App-cpanminus
+  notify: restart_httpd
 
 - name: Installing Perl Encoding FixLatin for mailwatch custom functions
   shell: /bin/cpanm Encoding::FixLatin
