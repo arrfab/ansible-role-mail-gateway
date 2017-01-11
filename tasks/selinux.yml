@@ -22,6 +22,10 @@
   shell: /usr/sbin/semodule -u /etc/selinux/local_policies/{{ item.item }}
   with_items: custom_policies_output.results
   when: item.changed
+
 - name: clamd boolean
   seboolean: name=antivirus_can_scan_system state=yes persistent=yes
+
+- name: Ensuring httpd can modify setrlimit (for mailscanner release operations)
+  seboolean: name=httpd_setrlimit state=yes persistent=yes
 
