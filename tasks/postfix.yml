@@ -1,7 +1,16 @@
 ---
 # postfix part
+- name: Adding SPF pkgs for postfix
+  yum: 
+    name: pypolicyd-spf
+    state: installed
+
 - name: Configure postfix main.cf
   template: src=postfix-main.cf.j2 dest=/etc/postfix/main.cf
+  notify: restart_postfix
+
+- name: Configure postfix master.cf (Adding policyd for SPF)
+  template: src=postfix-master.cf.j2 dest=/etc/postfix/master.cf
   notify: restart_postfix
 
 - name: Configure postfix transport
