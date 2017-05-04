@@ -56,7 +56,7 @@ smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
 smtpd_recipient_restrictions = 
     permit_mynetworks,
     reject_unauth_destination,
-    check_policy_service unix:private/policyd-spf
+    check_policy_service unix:private/policyd-spf,
     reject_invalid_hostname,
     reject_unauth_pipelining,
     reject_non_fqdn_sender,
